@@ -5,6 +5,7 @@
  */
 package finalprojectserver;
 
+import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,12 +13,14 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextArea;
+import javafx.scene.shape.Shape;
 import simulation.Simulation;
 
 /**
@@ -37,7 +40,7 @@ public class FXMLDocumentControllerServer implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
+        sim = new Simulation(600, 500, 2, 2);
         new Thread( () -> {
             try {
                 ServerSocket serverSocket = new ServerSocket(8000);
@@ -61,10 +64,12 @@ class handlePlayer implements Runnable, net.NetConstants{
     private Socket socket;
     private Simulation sim;
     private TextArea textArea;
+    private Gson gson;
     public handlePlayer(Socket socket, TextArea textArea, Simulation sim){
         this.socket=socket;
         this.textArea = textArea;
         this.sim = sim;
+        gson = new Gson();
     }
     @Override
     public void run(){
@@ -77,9 +82,16 @@ class handlePlayer implements Runnable, net.NetConstants{
               switch(request) {
                   case GET_SHAPES: {
                       //get from sim, need to think of a way to encode the data
-                      outputToClient.println();
-                      
-                      
+                      List<Shape> shapes = sim.setUpShapes();   //Gson doesn't like Shapes
+                      Shape sha = shapes.get(0);
+                      String st = gson.toJson(sha);
+                      System.out.println(st);
+                      outputToClient.println(shapes.size());
+                      for(int i=0;i<shapes.size();i++){
+                          String s = gson.toJson(shapes.get(i));
+                          outputToClient.println(s);
+                      }
+                      outputToClient.flush();
                       break;
                       }
                   case SEND_MOVES: {
