@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -76,22 +77,26 @@ class handlePlayer implements Runnable, net.NetConstants{
         try{
             BufferedReader inputFromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter outputToClient = new PrintWriter(socket.getOutputStream());
+            ObjectOutputStream ObjOutToClient = new ObjectOutputStream(socket.getOutputStream());
 
             while (true) {
               int request = Integer.parseInt(inputFromClient.readLine());
               switch(request) {
                   case GET_SHAPES: {
                       //get from sim, need to think of a way to encode the data
+                      
                       List<Shape> shapes = sim.setUpShapes();   //Gson doesn't like Shapes
-                      Shape sha = shapes.get(0);
-                      String st = gson.toJson(sha);
-                      System.out.println(st);
-                      outputToClient.println(shapes.size());
-                      for(int i=0;i<shapes.size();i++){
-                          String s = gson.toJson(shapes.get(i));
-                          outputToClient.println(s);
-                      }
-                      outputToClient.flush();
+                      ObjOutToClient.writeObject(shapes);
+                      ObjOutToClient.flush();
+//                      Shape sha = shapes.get(0);
+//                      String st = gson.toJson(sha);
+//                      System.out.println(st);
+//                      outputToClient.println(shapes.size());
+//                      for(int i=0;i<shapes.size();i++){
+//                          String s = gson.toJson(shapes.get(i));
+//                          outputToClient.println(s);
+//                      }
+//                      outputToClient.flush();
                       break;
                       }
                   case SEND_MOVES: {
