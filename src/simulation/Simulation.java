@@ -11,23 +11,29 @@ import physics.*;
 public class Simulation {
     private Box outer;
     private Ball ball;
-    private Triangle inner;
+    private Triangle[] inner;
     private Lock lock;
     
     public Simulation(int width,int height,int dX,int dY)
     {
         outer = new Box(0,0,width,height,false);
         ball = new Ball(width/2,height/2,dX,dY);
-        inner = new Triangle(width - 500,height - 400, 60,40,true);
+        inner = new Triangle[2];
+        inner[0] = new Triangle(width - 500,height - 400, 60,40,true);
+        inner[1] = new Triangle(width - 50,height - 40, 60,-40,true);
         lock = new ReentrantLock();
     }
     
     public synchronized void evolve(double time)
     {
         lock.lock();
-        Ray newLoc = inner.bounceRay(ball.getRay(), time);
+        Ray newLoc = inner[0].bounceRay(ball.getRay(), time);
+        Ray newLoc2 = inner[1].bounceRay(ball.getRay(),time);
         if(newLoc != null)
             ball.setRay(newLoc);
+        if(newLoc2 != null){
+            ball.setRay(newLoc2);
+        }
         else {
             newLoc = outer.bounceRay(ball.getRay(), time);
             if(newLoc != null)
@@ -37,33 +43,35 @@ public class Simulation {
         } 
         lock.unlock();
     }
-    public synchronized Point getPaddlePosition(){
-        Point p = new Point(inner.x,inner.y);
-        return p;
+    public synchronized List<Point> getPaddlePosition(){
+        Point p = new Point(inner[0].x,inner[0].y);
+        Point p2 = new Point(inner[1].x,inner[1].y);
+        List<Point> list = new ArrayList<Point>();
+        list.add(p);
+        list.add(p2);
+        return list;
     }
     public synchronized Point getBallPosition(){
         return this.ball.getRay().origin;
     }
-    public synchronized Triangle getTriangle(){
-        return inner;
-    }
-    public synchronized void moveInner(int deltaX,int deltaY)
+
+    public synchronized void moveInner(int deltaX,int deltaY,int player)
     {
         lock.lock();
         int dX = deltaX;
         int dY = deltaY;
-        if(inner.x + deltaX < 0)
-          dX = -inner.x;
-        if(inner.x + inner.width + deltaX > outer.width)
-          dX = outer.width - inner.width - inner.x;
+        if(inner[player].x + deltaX < 0)
+          dX = -inner[player].x;
+        if(inner[player].x + inner[player].width + deltaX > outer.width)
+          dX = outer.width - inner[player].width - inner[player].x;
        
-        if(inner.y - inner.height + deltaY < 0)
+        if(inner[player].y - inner[player].height + deltaY < 0)
            dY = 0;
-        if(inner.y + deltaY > outer.height)
-           dY = outer.height - inner.y;
+        if(inner[player].y + deltaY > outer.height)
+           dY = outer.height - inner[player].y;
         
-        inner.move(dX,dY);
-        if(inner.contains(ball.getRay().origin)) {
+        inner[player].move(dX,dY);
+        if(inner[player].contains(ball.getRay().origin)) {
             // If we have discovered that the box has just jumped on top of
             // the ball, we nudge them apart until the box no longer
             // contains the ball.
@@ -73,10 +81,10 @@ public class Simulation {
             int bumpY = -1;
             if(dY < 0) bumpY = 1;
             do {
-            inner.move(bumpX, bumpY);
+            inner[player].move(bumpX, bumpY);
             ball.getRay().origin.x += -bumpX;
             ball.getRay().origin.y += -bumpY;
-            } while(inner.contains(ball.getRay().origin));
+            } while(inner[player].contains(ball.getRay().origin));
         }
         lock.unlock();
     }
@@ -85,14 +93,16 @@ public class Simulation {
     {
         ArrayList<Shape> newShapes = new ArrayList<Shape>();
         newShapes.add(outer.getShape());
-        newShapes.add(inner.getShape());
+        newShapes.add(inner[0].getShape());
+        newShapes.add(inner[1].getShape());
         newShapes.add(ball.getShape());
         return newShapes;
     }
     
     public void updateShapes()
     {
-        inner.updateShape();
+        inner[0].updateShape();
+        inner[1].updateShape();
         ball.updateShape();
     }
 }

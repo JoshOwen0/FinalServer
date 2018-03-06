@@ -19,9 +19,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextArea;
 import java.io.ObjectOutputStream;
+import java.util.List;
 import simulation.Simulation;
 import physics.Point;
-import physics.Ray;
 
 /**
  *
@@ -29,6 +29,7 @@ import physics.Ray;
  */
 public class FXMLDocumentControllerServer implements Initializable {
     
+    private int player=0;
     private Simulation sim;
     @FXML
     private TextArea textArea;
@@ -47,9 +48,10 @@ public class FXMLDocumentControllerServer implements Initializable {
                 while (true) {
                     Socket socket = serverSocket.accept();
                     Platform.runLater( () -> {
-                        textArea.appendText("New Player Joined\n");
+                        textArea.appendText("Player " + String.valueOf(player+1) + " joined.\n");
                     });
-                    new Thread(new handlePlayer(socket,textArea,sim)).start();
+                    new Thread(new handlePlayer(socket,textArea,sim,player)).start();
+                    player++;
                 }
             }catch(IOException ex) {
                 ex.printStackTrace();
@@ -65,10 +67,12 @@ class handlePlayer implements Runnable, net.NetConstants{
     private Simulation sim;
     private TextArea textArea;
     private boolean ready1;
-    public handlePlayer(Socket socket, TextArea textArea, Simulation sim){
+    private int player;
+    public handlePlayer(Socket socket, TextArea textArea, Simulation sim, int player){
         this.socket=socket;
         this.textArea = textArea;
         this.sim = sim;
+        this.player=player;
     }
     @Override
     public synchronized void run(){
@@ -80,8 +84,9 @@ class handlePlayer implements Runnable, net.NetConstants{
               int request = Integer.parseInt(inputFromClient.readLine());
               switch(request) {
                   case GET_PADDLES: {                      
-                      Point t = sim.getPaddlePosition();
-                      ObjOut.writeObject(t);
+                      List list = sim.getPaddlePosition();
+                      ObjOut.writeObject(list.get(0));
+                      ObjOut.writeObject(list.get(1));
                       ObjOut.flush();
                       break;
                       }
@@ -94,7 +99,7 @@ class handlePlayer implements Runnable, net.NetConstants{
                   case SEND_MOVES: {
                       int movesx = Integer.parseInt(inputFromClient.readLine());
                       int movesy = Integer.parseInt(inputFromClient.readLine());
-                      sim.moveInner(movesx, movesy);
+                      sim.moveInner(movesx, movesy,player);
                       break;
                     }
                   case SEND_READY: {
