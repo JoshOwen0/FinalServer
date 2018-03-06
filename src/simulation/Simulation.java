@@ -7,7 +7,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 import physics.*;
-import java.awt.Point;
 
 public class Simulation {
     private Box outer;
@@ -19,11 +18,11 @@ public class Simulation {
     {
         outer = new Box(0,0,width,height,false);
         ball = new Ball(width/2,height/2,dX,dY);
-        inner = new Triangle(width - 60,height - 40, 60,40,true);
+        inner = new Triangle(width - 500,height - 400, 60,40,true);
         lock = new ReentrantLock();
     }
     
-    public void evolve(double time)
+    public synchronized void evolve(double time)
     {
         lock.lock();
         Ray newLoc = inner.bounceRay(ball.getRay(), time);
@@ -38,11 +37,17 @@ public class Simulation {
         } 
         lock.unlock();
     }
-    public Point getPosition(){
-        Point p = new Point(inner.x+inner.width/2,inner.y);
+    public synchronized Point getPaddlePosition(){
+        Point p = new Point(inner.x,inner.y);
         return p;
     }
-    public void moveInner(int deltaX,int deltaY)
+    public synchronized Point getBallPosition(){
+        return this.ball.getRay().origin;
+    }
+    public synchronized Triangle getTriangle(){
+        return inner;
+    }
+    public synchronized void moveInner(int deltaX,int deltaY)
     {
         lock.lock();
         int dX = deltaX;
@@ -63,7 +68,6 @@ public class Simulation {
             // the ball, we nudge them apart until the box no longer
             // contains the ball.
             
-            inner.setColor(Color.CYAN);
             int bumpX = -1;
             if(dX < 0) bumpX = 1;
             int bumpY = -1;
@@ -88,7 +92,6 @@ public class Simulation {
     
     public void updateShapes()
     {
-        inner.setColor(Color.WHITE);
         inner.updateShape();
         ball.updateShape();
     }

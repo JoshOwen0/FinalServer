@@ -1,9 +1,11 @@
 package physics;
 
+import java.io.Serializable;
+
 /** A class to facilitate physics of motion computations. To represent
  *  a moving object we need to specify its location, direction, and 
  *  speed. The Ray class stores all of that information. **/
-public class Ray {
+public class Ray implements Serializable{
   public Point origin;
   public Vector v;
   public double speed;

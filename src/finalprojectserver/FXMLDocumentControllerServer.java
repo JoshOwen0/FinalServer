@@ -12,16 +12,16 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextArea;
-import javafx.scene.shape.Polygon;
-import javafx.scene.shape.Shape;
+import java.io.ObjectOutputStream;
 import simulation.Simulation;
+import physics.Point;
+import physics.Ray;
 
 /**
  *
@@ -40,7 +40,7 @@ public class FXMLDocumentControllerServer implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        sim = new Simulation(600, 500, 2, 2);
+        sim = new Simulation(1920, 1017, 2, 2);
         new Thread( () -> {
             try {
                 ServerSocket serverSocket = new ServerSocket(8000);
@@ -64,46 +64,64 @@ class handlePlayer implements Runnable, net.NetConstants{
     private Socket socket;
     private Simulation sim;
     private TextArea textArea;
+    private boolean ready1;
     public handlePlayer(Socket socket, TextArea textArea, Simulation sim){
         this.socket=socket;
         this.textArea = textArea;
         this.sim = sim;
     }
     @Override
-    public void run(){
+    public synchronized void run(){
         try{
             BufferedReader inputFromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter outputToClient = new PrintWriter(socket.getOutputStream());
-
+            ObjectOutputStream ObjOut = new ObjectOutputStream(socket.getOutputStream());
             while (true) {
               int request = Integer.parseInt(inputFromClient.readLine());
               switch(request) {
-                  case GET_SHAPES: {
-                      //get from sim, need to think of a way to encode the data
-                      
-                      List<Shape> shapes = sim.setUpShapes();
-                      Polygon p = (Polygon) shapes.get(1);
-                      
-                      for(int i=0;i<3;i++){
-                          outputToClient.println(p.getPoints().get(i));
-                          System.out.println(p.getPoints());
-                      }
+                  case GET_PADDLES: {                      
+                      Point t = sim.getPaddlePosition();
+                      ObjOut.writeObject(t);
+                      ObjOut.flush();
                       break;
                       }
+                  case GET_BALLS: {
+                      Point pb = sim.getBallPosition();
+                      ObjOut.writeObject(pb);
+                      ObjOut.flush();
+                      break;
+                  }
                   case SEND_MOVES: {
-                      String moves = inputFromClient.readLine();
-                      //interpret and pass to sim
+                      int movesx = Integer.parseInt(inputFromClient.readLine());
+                      int movesy = Integer.parseInt(inputFromClient.readLine());
+                      sim.moveInner(movesx, movesy);
                       break;
                     }
                   case SEND_READY: {
                       String r = inputFromClient.readLine();
                       if(r.equals("ready")){
-                          //Pass to sim
+                          ready1=true;
+                          
                       }else{
-                          //pass to sim
+                          ready1=false;
                       }
                       break;
                     }
+                  case START_SIM: { 
+                      Platform.runLater(()->textArea.appendText("Starting game\n"));
+                      sim.setUpShapes();
+                       new Thread(() -> {
+                            while (true) {
+                            sim.evolve(1.0);
+                            Platform.runLater(()->sim.updateShapes());
+                            try {
+                                Thread.sleep(15);
+                            } catch (InterruptedException ex) {}
+                            }
+                        }).start();
+                       break;
+                    }
+                  
 
                   }
 

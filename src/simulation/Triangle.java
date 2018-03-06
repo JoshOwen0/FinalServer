@@ -5,10 +5,10 @@
  */
 package simulation;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import physics.LineSegment;
 import physics.Point;
@@ -18,9 +18,8 @@ import physics.Ray;
  *
  * @author Owen
  */
-public class Triangle {
+public class Triangle implements Serializable{
     private ArrayList<LineSegment> walls;
-    private Polygon r;
     public int x;
     public int y;
     public int width;
@@ -86,13 +85,10 @@ public class Triangle {
             
         return false;
     }
-    public void setColor(Color c){
-        r.setFill(c);
-    }
     
     public Shape getShape()
     {
-        r = new Polygon();
+        Polygon r = new Polygon();
         r.getPoints().addAll(new Double[]{
             (double)x,(double)y,
             (double)x+width,(double)y,
@@ -108,7 +104,7 @@ public class Triangle {
         Point p1 = walls.get(0).a;
         Point p2 = walls.get(1).a;
         Point p3 = walls.get(2).a;
-        
+        Polygon r = new Polygon();
         r.getPoints().clear();
         r.getPoints().addAll(new Double[]{
             p1.x,p1.y,

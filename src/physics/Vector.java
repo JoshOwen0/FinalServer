@@ -1,8 +1,10 @@
 package physics;
 
+import java.io.Serializable;
+
 /** A simple class to represent vectors. Includes convenience
  *  methods for standard vector operations. **/
-public class Vector {
+public class Vector implements Serializable{
     public double dX;
     public double dY;
     

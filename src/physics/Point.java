@@ -1,7 +1,9 @@
 package physics;
 
+import java.io.Serializable;
+
 /* A simple Point class. **/
-public class Point {
+public class Point implements Serializable{
     public double x;
     public double y;
     

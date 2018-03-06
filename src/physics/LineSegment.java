@@ -1,11 +1,13 @@
      package physics;
 
+import java.io.Serializable;
+
 /* The LineSegment class represent a directed line segment with an attached
  * normal. The direction of the line segment is a vector running from point
  * a to point b. The normal is a unit vector rotated 90 degrees clockwise
  * from the direction vector in pixel coordinate space.
  */
-public class LineSegment {
+public class LineSegment implements Serializable{
     public Point a;
     public Point b;
     
