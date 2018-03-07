@@ -135,6 +135,7 @@ class handlePlayer implements Runnable, net.NetConstants{
                     }
                   case GET_SCORE: {
                       int[] scores = sim.getScore();
+                      
                       outputToClient.println(scores[0]);
                       outputToClient.println(scores[1]);
                       outputToClient.flush();
