@@ -51,7 +51,6 @@ public class FXMLDocumentControllerServer implements Initializable {
                     player++;
                 }
             }catch(IOException ex) {
-                ex.printStackTrace();
                 Platform.runLater( () -> {
                         textArea.appendText("Player " + String.valueOf(player+1) + " left.\n");
                     });
@@ -86,8 +85,13 @@ class handlePlayer implements Runnable, net.NetConstants{
               switch(request) {
                   case GET_PADDLES: {                      
                       List list = sim.getPaddlePosition();
-                      ObjOut.writeObject(list.get(0));
-                      ObjOut.writeObject(list.get(1));
+                      if(player==0){
+                        ObjOut.writeObject(list.get(0));
+                        ObjOut.writeObject(list.get(1));
+                      }else{
+                          ObjOut.writeObject(list.get(1));
+                          ObjOut.writeObject(list.get(0));
+                      }
                       ObjOut.flush();
                       break;
                       }
@@ -111,6 +115,8 @@ class handlePlayer implements Runnable, net.NetConstants{
                       }else{
                           ready1=false;
                       }
+                      outputToClient.println(player);
+                      outputToClient.flush();
                       break;
                     }
                   case START_SIM: { 

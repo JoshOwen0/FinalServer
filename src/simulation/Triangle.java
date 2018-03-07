@@ -50,10 +50,14 @@ public class Triangle implements Serializable{
         Point intersection = null;
         for(int n = 0;n < walls.size();n++)
         {
+            
             LineSegment seg = in.toSegment(time);
             intersection = walls.get(n).intersection(seg);
             if(intersection != null)
             {
+                if(n==0){
+                    
+                }
                 // If it intersects, find out when
                 double t = in.getTime(intersection);
                 // Reflect the Ray off the line segment
