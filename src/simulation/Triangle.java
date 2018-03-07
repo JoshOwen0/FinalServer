@@ -38,9 +38,9 @@ public class Triangle implements Serializable{
             walls.add(new LineSegment(new Point(x+width,y),new Point(x+width/2,y-height)));
             walls.add(new LineSegment(new Point(x+width/2,y-height),new Point(x,y)));
         } else {
-            walls.add(new LineSegment(new Point(x,y),new Point(x+width,y)));
-            walls.add(new LineSegment(new Point(x+width,y),new Point(x+width/2,y-height)));
-            walls.add(new LineSegment(new Point(x+width/2,y-height),new Point(x,y)));
+            walls.add(new LineSegment(new Point(x+width,y),new Point(x,y)));
+            walls.add(new LineSegment(new Point(x+width/2,y-height),new Point(x+width,y)));
+            walls.add(new LineSegment(new Point(x,y), new Point(x+width/2,y-height)));
         }
     }
     

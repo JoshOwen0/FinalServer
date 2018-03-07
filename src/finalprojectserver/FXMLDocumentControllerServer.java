@@ -34,14 +34,11 @@ public class FXMLDocumentControllerServer implements Initializable {
     @FXML
     private TextArea textArea;
     
-    @FXML
-    private void handleButtonAction(ActionEvent event) {
-        System.out.println("You clicked me!");
-    }
+
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        sim = new Simulation(1920, 1017, 2, 2);
+        sim = new Simulation(1000, 800, 2, 2);
         new Thread( () -> {
             try {
                 ServerSocket serverSocket = new ServerSocket(8000);
@@ -55,6 +52,10 @@ public class FXMLDocumentControllerServer implements Initializable {
                 }
             }catch(IOException ex) {
                 ex.printStackTrace();
+                Platform.runLater( () -> {
+                        textArea.appendText("Player " + String.valueOf(player+1) + " left.\n");
+                    });
+                player--;
             }
             
     }).start();

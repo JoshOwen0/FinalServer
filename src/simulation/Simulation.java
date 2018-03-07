@@ -20,7 +20,7 @@ public class Simulation {
         ball = new Ball(width/2,height/2,dX,dY);
         inner = new Triangle[2];
         inner[0] = new Triangle(width - 500,height - 400, 60,40,true);
-        inner[1] = new Triangle(width - 50,height - 40, 60,-40,true);
+        inner[1] = new Triangle(width - 500,100, 60,-40,false);
         lock = new ReentrantLock();
     }
     
