@@ -20,8 +20,8 @@ public class Simulation {
         outer = new Box(0,0,width,height,false);
         ball = new Ball(width/2,height/2,dX,dY);
         inner = new Triangle[2];
-        inner[0] = new Triangle(width - 500,height - 400, 60,40,true);
-        inner[1] = new Triangle(width - 500,100, 60,-40,false);
+        inner[0] = new Triangle(width - 500,height - 100, 60,40,true);
+        inner[1] = new Triangle(500,100, 60,-40,false);
         lock = new ReentrantLock();
         scores = new int[2];
     }
