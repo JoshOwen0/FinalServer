@@ -24,6 +24,7 @@ public class Triangle implements Serializable{
     public int y;
     public int width;
     public int height;
+    public int score;
     
     // Set outward to true if you want a box with outward pointed normals
     public Triangle(int x,int y,int width,int height,boolean outward)
@@ -33,6 +34,7 @@ public class Triangle implements Serializable{
         this.width = width;
         this.height = height;
         walls = new ArrayList<LineSegment>();
+        score = 5;
         if(outward) {
             walls.add(new LineSegment(new Point(x,y),new Point(x+width,y)));
             walls.add(new LineSegment(new Point(x+width,y),new Point(x+width/2,y-height)));
@@ -56,7 +58,7 @@ public class Triangle implements Serializable{
             if(intersection != null)
             {
                 if(n==0){
-                    
+                    score--;
                 }
                 // If it intersects, find out when
                 double t = in.getTime(intersection);

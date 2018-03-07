@@ -13,6 +13,7 @@ public class Simulation {
     private Ball ball;
     private Triangle[] inner;
     private Lock lock;
+    private int[] scores;
     
     public Simulation(int width,int height,int dX,int dY)
     {
@@ -22,8 +23,17 @@ public class Simulation {
         inner[0] = new Triangle(width - 500,height - 400, 60,40,true);
         inner[1] = new Triangle(width - 500,100, 60,-40,false);
         lock = new ReentrantLock();
+        scores = new int[2];
     }
-    
+    public int[] getScore(){
+        int score1= inner[0].score;
+        int score2=inner[1].score;
+        int[] scores=new int[2];
+        scores[0] = score1;
+        scores[1] = score2;
+        
+        return scores;
+    }
     public synchronized void evolve(double time)
     {
         lock.lock();
